@@ -1,83 +1,116 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import fetch from "node-fetch";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const publicDir = path.join(__dirname, "..", "public");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
+
+// 👉 CHANGE if your Python backend runs elsewhere
+const PYTHON_API = "http://localhost:5000/analyze";
 
 app.use(cors());
-app.use(express.json({ limit: "1mb" }));
-app.use(express.static(publicDir));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.static(path.join(__dirname, "..", "public")));
 
-function buildDummyAnalysis(code, language = "javascript") {
-  const issues = [];
-  let health = 92;
+/**
+ * ✅ Validate LLM response structure
+ */
+function validateResponse(data) {
+  if (!data) return false;
 
-  if (code.includes("var ")) {
-    issues.push({
-      title: "Use let/const instead of var",
-      description: "var is function-scoped and can create confusing behavior. Prefer let or const.",
-      fix: code.replace(/\bvar\b/g, "let")
-    });
-    health -= 10;
-  }
+  return (
+    typeof data.score === "number" &&
+    typeof data.summary === "string" &&
+    Array.isArray(data.keep) &&
+    Array.isArray(data.remove) &&
+    Array.isArray(data.improve)
+  );
+}
 
-  if (/<=\s*\w+\.length/.test(code)) {
-    issues.push({
-      title: "Possible off-by-one loop",
-      description: "Using <= with .length can read one item past the end of an array.",
-      fix: "Change <= items.length to < items.length"
-    });
-    health -= 12;
-  }
-
-  if (language === "sql" && /select\s+\*+/i.test(code)) {
-    issues.push({
-      title: "Avoid SELECT *",
-      description: "Selecting all columns can hurt performance and make queries harder to maintain.",
-      fix: "Select only the columns you need."
-    });
-    health -= 8;
-  }
-
-  if (!issues.length) {
-    return {
-      summary: "No obvious issues were detected in this local demo analysis.",
-      health,
-      issues: []
-    };
-  }
-
+/**
+ * ✅ Fallback response (if LLM fails)
+ */
+function fallbackResponse() {
   return {
-    summary: `Found ${issues.length} potential issue${issues.length === 1 ? "" : "s"} in this code.`,
-    health: Math.max(40, health),
-    issues
+    score: 50,
+    summary: "Analysis could not be completed properly.",
+    keep: [],
+    remove: [],
+    improve: [
+      {
+        title: "Analysis Error",
+        description: "LLM did not return a valid response.",
+        fix: "Check backend or prompt formatting."
+      }
+    ]
   };
 }
 
-app.post("/analyze", (req, res) => {
+/**
+ * 🚀 MAIN ROUTE
+ */
+app.post("/analyze", async (req, res) => {
   try {
-    const { code, language } = req.body || {};
+    const { code, language, reviewName } = req.body;
+
     if (!code || typeof code !== "string") {
-      return res.status(400).json({ error: "Code is required." });
+      return res.status(400).json({
+        error: "Code is required"
+      });
     }
 
-    const result = buildDummyAnalysis(code, language);
-    return res.json(result);
-  } catch (error) {
-    return res.status(500).json({ error: error.message || "Server error" });
+    // 🔥 Call Python backend
+    const response = await fetch(PYTHON_API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        code,
+        language,
+        reviewName
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("Python backend error");
+    }
+
+    let data = await response.json();
+
+    // 🧠 Validate structure
+    if (!validateResponse(data)) {
+      console.warn("⚠ Invalid LLM response format");
+      data = fallbackResponse();
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    console.error("❌ Error:", err.message);
+
+    res.status(500).json({
+      ...fallbackResponse(),
+      error: "Failed to process request"
+    });
   }
 });
 
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
+/**
+ * ✅ Serve frontend
+ */
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
+/**
+ * 🚀 START SERVER
+ */
 app.listen(PORT, () => {
-  console.log(`Digital Architect running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
