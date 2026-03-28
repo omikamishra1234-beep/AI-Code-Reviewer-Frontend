@@ -10,8 +10,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// 👉 CHANGE if your Python backend runs elsewhere
-const PYTHON_API = "http://localhost:5000/analyze";
+const PYTHON_API = "http://localhost:8000/analyze";
 
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
@@ -25,7 +24,6 @@ function validateResponse(data) {
 
   return (
     typeof data.score === "number" &&
-    typeof data.summary === "string" &&
     Array.isArray(data.keep) &&
     Array.isArray(data.remove) &&
     Array.isArray(data.improve)
