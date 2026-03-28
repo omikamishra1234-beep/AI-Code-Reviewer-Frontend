@@ -1,6 +1,6 @@
-Digital Architect — AI Code Review Frontend
+CodeCritic — AI Code Review Frontend
 
-Digital Architect is a lightweight frontend application for analyzing code using AI.
+CodeCritic is a lightweight frontend application for analyzing code using AI.
 It allows users to paste code, send it to a backend service, and receive structured feedback including a score, improvements, and recommendations.
 
 Features
@@ -24,7 +24,7 @@ The frontend communicates only with the Node.js server.
 The Node server forwards requests to the Python backend, which handles AI processing.
 
 Project Structure
-digital-architect/
+CodeCritic
 │
 ├── public/
 │   └── index.html        # Frontend UI
