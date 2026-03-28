@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Digital Architect — AI Code Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080c10;
+  --bg2:       #0d1117;
+  --surface:   #111620;
+  --card:      #161d28;
+  --card2:     #1a2233;
+  --border:    #1e2836;
+  --border2:   #28364a;
+  --text:      #dde6f0;
+  --text2:     #8fa4bc;
+  --muted:     #4a6077;
+  --accent:    #3d9be9;
+  --accent2:   #5db8ff;
+  --glow:      rgba(61,155,233,0.18);
+  --orange:    #f59e0b;
+  --orange2:   #fbbf24;
+  --danger:    #ef4444;
+  --danger2:   #f87171;
+  --success:   #22c55e;
+  --success2:  #4ade80;
+  --purple:    #8b5cf6;
+  --font:      'DM Sans', system-ui, sans-serif;
+  --font-head: 'Syne', system-ui, sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+  --sidebar-w: 240px;
+  --topbar-h:  56px;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+/* ─── LAYOUT ─── */
+.app { display: flex; height: 100vh; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), #6366f1);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.logo-text { font-family: var(--font-head); font-size: 14px; font-weight: 700; line-height: 1.2; }
+.logo-sub  { font-size: 10px; color: var(--muted); font-weight: 400; }
+
+.sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  margin: 1px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: all .15s;
+  border: none;
+  background: transparent;
+  width: calc(100% - 16px);
+  font-family: var(--font);
+  text-align: left;
+}
+.nav-item:hover  { background: rgba(255,255,255,.04); color: var(--text); }
+.nav-item.active { background: rgba(61,155,233,.12); color: var(--accent2); }
+.nav-item.active .nav-icon { color: var(--accent); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+.nav-badge-warn { margin-left: auto; background: var(--orange); color: #000; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid var(--border);
+}
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.user-row:hover { background: rgba(255,255,255,.04); }
+.user-ava {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3d9be9, #8b5cf6);
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-name { font-size: 12px; font-weight: 600; }
+.user-role { font-size: 10px; color: var(--muted); }
+.user-status { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+
+/* ─── MAIN ─── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  height: var(--topbar-h);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+.topbar-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; flex: 1; }
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: text;
+  width: 220px;
+  transition: border-color .15s;
+}
+.topbar-search:hover { border-color: var(--border2); }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 34px; height: 34px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid; place-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all .15s;
+}
+.icon-btn:hover { border-color: var(--border2); background: var(--card); }
+
+/* ─── CONTENT ─── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  background: var(--bg);
+}
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ─── PAGES ─── */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+.page-desc { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+/* ─── GRID STATS ─── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color .2s, transform .2s;
+  cursor: default;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.stat-card-header { display: flex; align-items: center; justify-content: space-between; }
+.stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.stat-icon { font-size: 16px; }
+.stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 800; line-height: 1; }
+.stat-change { font-size: 11px; color: var(--success); font-weight: 500; }
+.stat-change.down { color: var(--danger); }
+
+/* ─── SECTION TITLE ─── */
+.section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; }
+.section-action { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; transition: color .15s; }
+.section-action:hover { color: var(--accent2); }
+
+/* ─── TWO-COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+
+/* ─── REVIEW LIST ─── */
+.review-list { display: flex; flex-direction: column; gap: 10px; }
+.review-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.review-item:hover { border-color: var(--border2); background: var(--card2); transform: translateX(2px); }
+.review-item-icon {
+  width: 38px; height: 38px;
+  background: var(--surface);
+  border-radius: 9px;
+  display: grid; place-items: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.review-item-info { flex: 1; min-width: 0; }
+.review-item-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.review-item-meta { font-size: 11px; color: var(--muted); }
+.review-item-stats { display: flex; gap: 14px; align-items: center; }
+.mini-stat { text-align: center; }
+.mini-stat-val { font-family: var(--font-head); font-size: 18px; font-weight: 800; line-height: 1; }
+.mini-stat-lbl { font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.review-item-badge { margin-left: 8px; }
+
+/* ─── BADGES ─── */
+.badge {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.badge-success { background: rgba(34,197,94,.12); color: var(--success2); border: 1px solid rgba(34,197,94,.2); }
+.badge-danger  { background: rgba(239,68,68,.12);  color: var(--danger2);  border: 1px solid rgba(239,68,68,.2); }
+.badge-warning { background: rgba(245,158,11,.12); color: var(--orange2);  border: 1px solid rgba(245,158,11,.2); }
+.badge-info    { background: rgba(61,155,233,.12); color: var(--accent2);  border: 1px solid rgba(61,155,233,.2); }
+.badge-orange  { background: rgba(245,158,11,.12); color: var(--orange2);  border: 1px solid rgba(245,158,11,.2); }
+.badge-purple  { background: rgba(139,92,246,.12); color: #a78bfa;         border: 1px solid rgba(139,92,246,.2); }
+
+/* ─── BAR CHART ─── */
+.bar-chart-wrap { height: 80px; display: flex; align-items: flex-end; gap: 6px; }
+.bar {
+  flex: 1; border-radius: 4px 4px 0 0;
+  background: var(--border2);
+  transition: background .2s, height .5s ease;
+  cursor: pointer;
+  position: relative;
+}
+.bar:hover { background: var(--accent); }
+.bar.peak  { background: linear-gradient(to top, var(--accent), var(--accent2)); }
+.bar-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 10;
+}
+.bar:hover .bar-tooltip { display: block; }
+
+/* ─── DONUT ─── */
+.donut-container { display: flex; align-items: center; gap: 24px; }
+.donut-info { flex: 1; }
+.donut-score { font-family: var(--font-head); font-size: 40px; font-weight: 800; line-height: 1; }
+.donut-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.donut-detail { font-size: 12px; color: var(--text2); line-height: 1.65; margin-top: 12px; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─── FORM ─── */
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.form-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(61,155,233,.1); }
+.form-input::placeholder { color: var(--muted); }
+.form-select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color .15s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234a6077' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.form-select:focus { border-color: var(--accent); }
+.form-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  padding: 14px;
+  border-radius: 9px;
+  outline: none;
+  resize: vertical;
+  min-height: 260px;
+  transition: border-color .15s;
+  tab-size: 2;
+  caret-color: var(--accent);
+}
+.form-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(61,155,233,.08); }
+.form-textarea::placeholder { color: var(--muted); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  padding: 10px 18px; border-radius: 9px; border: none; cursor: pointer;
+  transition: all .15s; text-decoration: none;
+}
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { background: var(--accent2); box-shadow: 0 4px 16px var(--glow); }
+.btn-primary:active { transform: scale(.97); }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border2); }
+.btn-secondary:hover { background: var(--card); border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: rgba(239,68,68,.12); color: var(--danger2); border: 1px solid rgba(239,68,68,.2); }
+.btn-danger:hover { background: rgba(239,68,68,.2); }
+.btn-lg { padding: 13px 24px; font-size: 15px; border-radius: 10px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+.btn-icon { padding: 8px 14px; }
+
+/* ─── CODE EDITOR AREA ─── */
+.editor-wrap {
+  background: #060a0e;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.editor-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.editor-dots { display: flex; gap: 6px; }
+.editor-dot { width: 10px; height: 10px; border-radius: 50%; }
+.editor-dot-r { background: #ff5f56; }
+.editor-dot-y { background: #ffbd2e; }
+.editor-dot-g { background: #27c93f; }
+.editor-filename { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.editor-lang { font-size: 10px; color: var(--accent); background: rgba(61,155,233,.1); padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.code-area {
+  display: flex;
+}
+.line-numbers {
+  padding: 14px 0;
+  min-width: 44px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  user-select: none;
+  border-right: 1px solid var(--border);
+  background: rgba(0,0,0,.2);
+  overflow: hidden;
+}
+.line-numbers span { display: block; padding: 0 12px 0 8px; height: 21.25px; }
+.code-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  padding: 14px 16px 60px;
+  outline: none;
+  resize: none;
+  tab-size: 2;
+  caret-color: var(--accent2);
+}
+.code-input::placeholder { color: var(--muted); font-style: italic; }
+
+/* ─── ANALYSIS RESULT ─── */
+.result-banner {
+  background: linear-gradient(135deg, rgba(61,155,233,.08), rgba(139,92,246,.06));
+  border: 1px solid rgba(61,155,233,.2);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.result-score { text-align: center; flex-shrink: 0; }
+.result-score-val { font-family: var(--font-head); font-size: 48px; font-weight: 800; line-height: 1; }
+.result-score-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .08em; }
+.result-divider { width: 1px; height: 60px; background: var(--border2); flex-shrink: 0; }
+.result-info { flex: 1; }
+.result-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.result-meta { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.result-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.issue-section { margin-bottom: 24px; }
+.issue-section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-head); font-size: 15px; font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.issue-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 8px;
+  transition: border-color .15s, transform .15s;
+  cursor: pointer;
+}
+.issue-card:hover { transform: translateX(3px); }
+.issue-card.bug    { border-left-color: var(--danger); }
+.issue-card.warn   { border-left-color: var(--orange); }
+.issue-card.improv { border-left-color: var(--accent); }
+.issue-card.good   { border-left-color: var(--success); }
+.issue-card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; gap: 12px; }
+.issue-title { font-size: 13px; font-weight: 700; }
+.issue-file { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 3px; }
+.issue-desc { font-size: 12px; color: var(--text2); line-height: 1.65; margin-bottom: 10px; }
+.diff-block {
+  background: #040810;
+  border-radius: 7px;
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.diff-hdr { font-size: 9px; color: var(--muted); margin-bottom: 6px; letter-spacing: .06em; text-transform: uppercase; }
+.diff-r { color: var(--danger2); }
+.diff-a { color: var(--success2); }
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 5px; background: var(--surface); color: var(--muted); border: 1px solid var(--border2); }
+.chip-ai   { background: rgba(61,155,233,.1); color: var(--accent2); border-color: rgba(61,155,233,.2); }
+.chip-lint { background: rgba(245,158,11,.1); color: var(--orange2); border-color: rgba(245,158,11,.2); }
+.chip-fix  { background: rgba(34,197,94,.1); color: var(--success2); border-color: rgba(34,197,94,.2); }
+
+/* ─── HISTORY ─── */
+.history-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--border2);
+  color: var(--text2); font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: 7px; cursor: pointer;
+  transition: all .15s; font-family: var(--font);
+}
+.filter-chip:hover, .filter-chip.active { background: rgba(61,155,233,.1); border-color: var(--accent); color: var(--accent); }
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 9px; padding: 9px 14px;
+  margin-bottom: 14px; transition: border-color .15s;
+}
+.search-bar:focus-within { border-color: var(--accent); }
+.search-bar input {
+  flex: 1; background: transparent; border: none; color: var(--text);
+  font-family: var(--font); font-size: 13px; outline: none;
+}
+.search-bar input::placeholder { color: var(--muted); }
+.hist-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.hist-card:hover { border-color: var(--border2); background: var(--card2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,.2); }
+.hist-card.done { border-left-color: var(--accent); }
+.hist-card.prog { border-left-color: var(--orange); }
+.hist-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; gap: 10px; }
+.hist-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; }
+.hist-meta { display: flex; gap: 14px; font-size: 11px; color: var(--muted); margin-bottom: 10px; flex-wrap: wrap; }
+.hist-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.hchip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; }
+.hchip-bug  { background: rgba(239,68,68,.1); color: var(--danger2); }
+.hchip-imp  { background: rgba(245,158,11,.1); color: var(--orange2); }
+.hchip-sec  { background: rgba(34,197,94,.1); color: var(--success2); }
+.hchip-doc  { background: rgba(139,92,246,.1); color: #a78bfa; }
+.hchip-arch { background: rgba(61,155,233,.1); color: var(--accent2); }
+.hist-footer { display: flex; align-items: center; justify-content: space-between; }
+.hist-avatars { display: flex; }
+.hist-ava { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--card); margin-right: -6px; font-size: 10px; display: grid; place-items: center; font-weight: 700; }
+.hist-ava-1 { background: linear-gradient(135deg,#3d9be9,#8b5cf6); }
+.hist-ava-2 { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+
+/* ─── SETTINGS ─── */
+.settings-section { margin-bottom: 28px; }
+.settings-section-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; margin-bottom: 6px; gap: 16px;
+}
+.settings-row-info .settings-row-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.settings-row-info .settings-row-sub { font-size: 11px; color: var(--muted); }
+.toggle {
+  width: 38px; height: 22px;
+  background: var(--border2);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+  flex-shrink: 0;
+  border: none;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+}
+.toggle.on::after { transform: translateX(16px); }
+.settings-select {
+  background: var(--surface); border: 1px solid var(--border2);
+  color: var(--text); font-family: var(--font); font-size: 12px;
+  padding: 6px 10px; border-radius: 7px; outline: none; cursor: pointer;
+}
+
+/* ─── LOADER ─── */
+.loader-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(8,12,16,.85);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+.loader-overlay.show { display: flex; }
+.loader-ring {
+  width: 48px; height: 48px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; }
+.loader-steps { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.loader-step { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; opacity: 0; transition: opacity .4s; }
+.loader-step.show { opacity: 1; }
+.loader-step.done { color: var(--success); }
+.lstep-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.progress-bar-wrap { width: 280px; height: 3px; background: var(--border2); border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width .6s ease; }
+
+/* ─── TOAST ─── */
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 300; }
+.toast {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  animation: slideIn .2s ease;
+  max-width: 320px;
+}
+@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast.success { border-color: rgba(34,197,94,.3); }
+.toast.error   { border-color: rgba(239,68,68,.3); }
+.toast.info    { border-color: rgba(61,155,233,.3); }
+
+/* ─── EMPTY STATE ─── */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .5; }
+.empty-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.empty-desc { font-size: 13px; color: var(--text2); line-height: 1.65; max-width: 320px; margin: 0 auto 20px; }
+
+/* ─── PROGRESS-BAR INLINE ─── */
+.inline-progress { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.inline-progress-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+/* ─── GLOW CARD ─── */
+.glow-card {
+  background: linear-gradient(145deg, rgba(61,155,233,.06), rgba(139,92,246,.04));
+  border: 1px solid rgba(61,155,233,.18);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.glow-card::before {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(61,155,233,.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ════ SIDEBAR ════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">⬡</div>
+      <div>
+        <div class="logo-text">Digital Architect</div>
+        <div class="logo-sub">AI Code Intelligence</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Workspace</div>
+    <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">⊞</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="navigate('review')" id="nav-review">
+      <span class="nav-icon">▷</span> New Review
+    </button>
+    <button class="nav-item" onclick="navigate('analysis')" id="nav-analysis">
+      <span class="nav-icon">◎</span> Analysis
+      <span class="nav-badge" id="analysisNotif" style="display:none">!</span>
+    </button>
+
+    <div class="sidebar-section">Reports</div>
+    <button class="nav-item" onclick="navigate('history')" id="nav-history">
+      <span class="nav-icon">⌛</span> History
+    </button>
+    <button class="nav-item" onclick="navigate('settings')" id="nav-settings">
+      <span class="nav-icon">⚙</span> Settings
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-ava">DA</div>
+        <div>
+          <div class="user-name">Dev Team</div>
+          <div class="user-role">Pro Plan</div>
+        </div>
+        <div class="user-status"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════ MAIN ════ -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-search" onclick="document.getElementById('globalSearch').focus()">
+        <span>🔍</span>
+        <input id="globalSearch" placeholder="Search reviews, files…" style="background:transparent;border:none;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:160px;" />
+      </div>
+      <div class="topbar-actions">
+        <div class="icon-btn" title="Notifications" onclick="showToast('No new notifications','info')">🔔</div>
+        <div class="icon-btn" title="New Review" onclick="navigate('review')">＋</div>
+        <div class="user-ava" style="cursor:pointer" onclick="navigate('settings')">DA</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-eyebrow">Overview</div>
+          <div class="page-title">Code Intelligence Hub</div>
+          <div class="page-desc">Real-time insights across all your repository scans and architectural audits.</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-lbl">Total Reviews</div>
+              <div class="stat-icon">📋</div>
+            </div>
+            <div class="stat-val">1,284</div>
+            <div class="stat-change">↑ 12% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-lbl">Avg Health Score</div>
+              <div class="stat-icon">💚</div>
+            </div>
+            <div class="stat-val" style="color:var(--success)">94.2</div>
+            <div class="stat-change">↑ 3.1 pts vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-lbl">Bugs Caught</div>
+              <div class="stat-icon">🐛</div>
+            </div>
+            <div class="stat-val" style="color:var(--danger)">347</div>
+            <div class="stat-change down">↑ 8 critical this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-lbl">Improvements</div>
+              <div class="stat-icon">⚡</div>
+            </div>
+            <div class="stat-val" style="color:var(--orange)">2.1k</div>
+            <div class="stat-change">↑ 18% applied rate</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <!-- Velocity chart -->
+          <div class="card">
+            <div class="section-row">
+              <div class="card-title">Review Velocity</div>
+              <div class="section-action">Last 10 days</div>
+            </div>
+            <div class="bar-chart-wrap" id="velocityChart"></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">Hover bars for daily counts</div>
+          </div>
+
+          <!-- Health donut -->
+          <div class="card">
+            <div class="card-title">Architecture Vitality</div>
+            <div class="donut-container" style="margin-top:8px">
+              <div style="position:relative;flex-shrink:0">
+                <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="var(--border2)" stroke-width="7"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="var(--accent)" stroke-width="7"
+                    stroke-linecap="round" stroke-dasharray="213.6 238.76" id="donutArc"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                  <div style="font-family:var(--font-head);font-size:22px;font-weight:800">89%</div>
+                </div>
+              </div>
+              <div class="donut-info">
+                <div class="donut-score" style="font-size:30px">89<span style="font-size:16px;color:var(--muted);font-weight:500">%</span></div>
+                <div class="donut-label">Health Score — <span style="color:var(--success);font-weight:700">Excellent</span></div>
+                <div class="donut-legend">
+                  <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div><span style="color:var(--text2)">Security — 96%</span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span style="color:var(--text2)">Performance — 88%</span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div><span style="color:var(--text2)">Maintainability — 82%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-row">
+          <div class="section-title">Recent Reviews</div>
+          <div class="section-action" onclick="navigate('history')">View all →</div>
+        </div>
+        <div class="review-list">
+          <div class="review-item" onclick="openReview('apollo-api-gateway')">
+            <div class="review-item-icon">📦</div>
+            <div class="review-item-info">
+              <div class="review-item-name">apollo-api-gateway</div>
+              <div class="review-item-meta">TypeScript · 2 hours ago · main branch</div>
+            </div>
+            <div class="review-item-stats">
+              <div class="mini-stat"><div class="mini-stat-val">0</div><div class="mini-stat-lbl">Bugs</div></div>
+              <div class="mini-stat"><div class="mini-stat-val" style="color:var(--orange)">12</div><div class="mini-stat-lbl">Improvements</div></div>
+            </div>
+            <div class="review-item-badge"><span class="badge badge-success">Success</span></div>
+          </div>
+          <div class="review-item" onclick="openReview('payment-service-v2')">
+            <div class="review-item-icon">💳</div>
+            <div class="review-item-info">
+              <div class="review-item-name">payment-service-v2</div>
+              <div class="review-item-meta">TypeScript · May 24, 2024 · feat/v2</div>
+            </div>
+            <div class="review-item-stats">
+              <div class="mini-stat"><div class="mini-stat-val" style="color:var(--danger)">3</div><div class="mini-stat-lbl">Bugs</div></div>
+              <div class="mini-stat"><div class="mini-stat-val" style="color:var(--orange)">7</div><div class="mini-stat-lbl">Improvements</div></div>
+            </div>
+            <div class="review-item-badge"><span class="badge badge-danger">Critical</span></div>
+          </div>
+          <div class="review-item" onclick="openReview('frontend-core-ui')">
+            <div class="review-item-icon">🖥️</div>
+            <div class="review-item-info">
+              <div class="review-item-name">frontend-core-ui</div>
+              <div class="review-item-meta">React · May 23, 2024 · develop</div>
+            </div>
+            <div class="review-item-stats">
+              <div class="mini-stat"><div class="mini-stat-val" style="color:var(--danger)">1</div><div class="mini-stat-lbl">Bugs</div></div>
+              <div class="mini-stat"><div class="mini-stat-val" style="color:var(--orange)">24</div><div class="mini-stat-lbl">Improvements</div></div>
+            </div>
+            <div class="review-item-badge"><span class="badge badge-warning">Warning</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ NEW REVIEW ══ -->
+      <div class="page" id="page-review">
+        <div class="page-header">
+          <div class="page-eyebrow">⊕ New Review</div>
+          <div class="page-title">Initiate Code Review</div>
+          <div class="page-desc">Paste your code below. The AI Architect will analyze bugs, performance issues, and suggest improvements.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start">
+          <div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Review Name</label>
+                <input class="form-input" id="reviewName" placeholder="e.g. Auth Module Optimization"/>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Language / Framework</label>
+                <select class="form-select" id="reviewLang">
+                  <option value="javascript">JavaScript</option>
+                  <option value="typescript" selected>TypeScript</option>
+                  <option value="typescript-react">TypeScript / React</option>
+                  <option value="python">Python</option>
+                  <option value="go">Go</option>
+                  <option value="rust">Rust</option>
+                  <option value="java">Java</option>
+                  <option value="csharp">C# / .NET</option>
+                  <option value="php">PHP</option>
+                  <option value="sql">SQL</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Context (optional)</label>
+              <input class="form-input" id="reviewContext" placeholder="Describe what this code is supposed to do…"/>
+            </div>
+
+            <div class="editor-wrap">
+              <div class="editor-header">
+                <div class="editor-dots">
+                  <div class="editor-dot editor-dot-r"></div>
+                  <div class="editor-dot editor-dot-y"></div>
+                  <div class="editor-dot editor-dot-g"></div>
+                </div>
+                <div class="editor-filename" id="editorFilename">untitled.ts</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="editor-lang" id="editorLangTag">TS</div>
+                  <button class="btn btn-sm btn-secondary" onclick="clearCode()">Clear</button>
+                </div>
+              </div>
+              <div class="code-area">
+                <div class="line-numbers" id="lineNums"><span>1</span></div>
+                <textarea class="code-input" id="codeInput" spellcheck="false"
+                  placeholder="// Paste your code here…&#10;&#10;function example() {&#10;  // AI will analyze this&#10;}"></textarea>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-primary btn-lg" onclick="runReview()" style="flex:1">
+                ▷ &nbsp;Run AI Review
+              </button>
+              <button class="btn btn-secondary btn-lg" onclick="loadSample()">Load Sample</button>
+            </div>
+          </div>
+
+          <!-- Right panel -->
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-title">⚙ Review Settings</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:13px;cursor:pointer">
+                  <span>Bug Detection</span>
+                  <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:13px;cursor:pointer">
+                  <span>Security Scan</span>
+                  <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:13px;cursor:pointer">
+                  <span>Performance Analysis</span>
+                  <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:13px;cursor:pointer">
+                  <span>Code Style</span>
+                  <button class="toggle" onclick="this.classList.toggle('on')"></button>
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:13px;cursor:pointer">
+                  <span>Generate Fixes</span>
+                  <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                </label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">💡 Quick Samples</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px" onclick="loadSampleCode('js_bug')">🐛 JS — Async Bug</button>
+                <button class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px" onclick="loadSampleCode('py_perf')">🐍 Python — N+1 Issue</button>
+                <button class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px" onclick="loadSampleCode('sql_inj')">🔐 SQL — Injection Risk</button>
+                <button class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px" onclick="loadSampleCode('ts_mem')">💾 TS — Memory Leak</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ANALYSIS ══ -->
+      <div class="page" id="page-analysis">
+        <div class="page-header">
+          <div class="page-eyebrow">◎ Analysis Report</div>
+          <div class="page-title" id="analysisTitle">Review Analysis</div>
+          <div class="page-desc" id="analysisDesc">Run a review to see results here.</div>
+        </div>
+        <div id="analysisContent">
+          <div class="empty-state">
+            <div class="empty-icon">◎</div>
+            <div class="empty-title">No Analysis Yet</div>
+            <div class="empty-desc">Go to New Review, paste your code, and click Run AI Review to generate a detailed report.</div>
+            <button class="btn btn-primary" onclick="navigate('review')">Start a Review</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ HISTORY ══ -->
+      <div class="page" id="page-history">
+        <div class="page-header">
+          <div class="page-eyebrow">⌛ Archive</div>
+          <div class="page-title">Review History</div>
+          <div class="page-desc">Archive of all automated architectural intelligence and code evaluations.</div>
+        </div>
+
+        <div class="search-bar">
+          <span>🔍</span>
+          <input id="historySearch" placeholder="Search project, branch, commit ID…" oninput="filterHistory()"/>
+        </div>
+
+        <div class="history-filters">
+          <button class="filter-chip active" onclick="setHistoryFilter(this,'all')">All</button>
+          <button class="filter-chip" onclick="setHistoryFilter(this,'completed')">Completed</button>
+          <button class="filter-chip" onclick="setHistoryFilter(this,'progress')">In Progress</button>
+          <button class="filter-chip" onclick="setHistoryFilter(this,'critical')">Critical</button>
+        </div>
+
+        <div id="historyList"></div>
+        <div class="section-action" style="text-align:center;padding:16px;cursor:pointer" onclick="showToast('All history loaded','info')">∨ Load more history</div>
+      </div>
+
+      <!-- ══ SETTINGS ══ -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <div class="page-eyebrow">⚙ Configuration</div>
+          <div class="page-title">Settings</div>
+          <div class="page-desc">Manage your Digital Architect workspace, integrations, and preferences.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div>
+            <div class="settings-section">
+              <div class="settings-section-title">Account</div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Profile Name</div>
+                  <div class="settings-row-sub">Dev Team · Pro Plan</div>
+                </div>
+                <button class="btn btn-sm btn-secondary">Edit</button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">API Key</div>
+                  <div class="settings-row-sub">sk-ant-••••••••••••••••</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('API key copied','success')">Copy</button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-section-title">AI Model</div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Model</div>
+                  <div class="settings-row-sub">Claude Sonnet 4</div>
+                </div>
+                <select class="settings-select">
+                  <option>Claude Sonnet 4</option>
+                  <option>Claude Opus 4</option>
+                </select>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Max Tokens</div>
+                  <div class="settings-row-sub">Response length limit</div>
+                </div>
+                <select class="settings-select">
+                  <option>1000</option>
+                  <option>2000</option>
+                  <option>4000</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="settings-section">
+              <div class="settings-section-title">Analysis Features</div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Bug Detection</div>
+                  <div class="settings-row-sub">Identify runtime errors and logic bugs</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on');showToast('Setting updated','success')"></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Security Scanning</div>
+                  <div class="settings-row-sub">Detect vulnerabilities and injections</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on');showToast('Setting updated','success')"></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Auto-Fix Suggestions</div>
+                  <div class="settings-row-sub">Generate code fix snippets</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on');showToast('Setting updated','success')"></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Performance Profiling</div>
+                  <div class="settings-row-sub">Identify inefficiencies and bottlenecks</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on');showToast('Setting updated','success')"></button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-section-title">Notifications</div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Critical Bug Alerts</div>
+                  <div class="settings-row-sub">Notify when critical bugs are found</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on');showToast('Setting updated','success')"></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title">Review Completion</div>
+                  <div class="settings-row-sub">Notify when analysis finishes</div>
+                </div>
+                <button class="toggle" onclick="this.classList.toggle('on');showToast('Setting updated','success')"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="btn btn-primary" onclick="showToast('Settings saved successfully','success')">Save Settings</button>
+          <button class="btn btn-secondary" onclick="showToast('Settings reset to defaults','info')">Reset Defaults</button>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- LOADER -->
+<div class="loader-overlay" id="loader">
+  <div class="loader-ring"></div>
+  <div>
+    <div class="loader-title">Analyzing Code…</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="loaderProgress" style="width:0%"></div>
+  </div>
+  <div class="loader-steps" id="loaderSteps"></div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ─── NAVIGATION ───
+const PAGE_TITLES = {
+  dashboard: 'Dashboard',
+  review:    'New Review',
+  analysis:  'Analysis Report',
+  history:   'Review History',
+  settings:  'Settings'
+};
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  document.getElementById('topbarTitle').textContent = PAGE_TITLES[page];
+  if (page === 'analysis') {
+    document.getElementById('analysisNotif').style.display = 'none';
+  }
+}
+
+function openReview(name) {
+  navigate('analysis');
+  // Could pre-load a specific review here
+}
+
+// ─── VELOCITY CHART ───
+const barVals = [38, 52, 29, 74, 44, 82, 58, 95, 71, 100];
+const barDays = ['Mar 18','Mar 19','Mar 20','Mar 21','Mar 22','Mar 23','Mar 24','Mar 25','Mar 26','Mar 27'];
+function buildVelocityChart() {
+  const chart = document.getElementById('velocityChart');
+  if (!chart) return;
+  chart.innerHTML = '';
+  const maxVal = Math.max(...barVals);
+  barVals.forEach((v, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i === barVals.length - 1 ? ' peak' : '');
+    bar.style.height = (v / maxVal * 100) + '%';
+    bar.style.opacity = 0.35 + (i / barVals.length) * 0.65;
+    bar.innerHTML = `<div class="bar-tooltip">${barDays[i]}: ${v} reviews</div>`;
+    chart.appendChild(bar);
+  });
+}
+
+// ─── LINE NUMBERS ───
+const codeInput = document.getElementById('codeInput');
+const lineNums = document.getElementById('lineNums');
+
+function updateLineNums() {
+  const lines = (codeInput.value.match(/\n/g) || []).length + 1;
+  let html = '';
+  for (let i = 1; i <= lines; i++) html += `<span>${i}</span>`;
+  lineNums.innerHTML = html;
+  lineNums.scrollTop = codeInput.scrollTop;
+}
+codeInput.addEventListener('input', updateLineNums);
+codeInput.addEventListener('scroll', () => { lineNums.scrollTop = codeInput.scrollTop; });
+codeInput.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = codeInput.selectionStart;
+    codeInput.value = codeInput.value.substring(0, s) + '  ' + codeInput.value.substring(s);
+    codeInput.selectionStart = codeInput.selectionEnd = s + 2;
+    updateLineNums();
+  }
+});
+
+// Update editor filename/lang tag on select change
+document.getElementById('reviewLang').addEventListener('change', function() {
+  const ext = { javascript:'js', typescript:'ts', 'typescript-react':'tsx', python:'py', go:'go', rust:'rs', java:'java', csharp:'cs', php:'php', sql:'sql' };
+  const tag = { javascript:'JS', typescript:'TS', 'typescript-react':'TSX', python:'PY', go:'GO', rust:'RS', java:'JAVA', csharp:'C#', php:'PHP', sql:'SQL' };
+  const name = document.getElementById('reviewName').value || 'untitled';
+  document.getElementById('editorFilename').textContent = name + '.' + (ext[this.value] || 'txt');
+  document.getElementById('editorLangTag').textContent = tag[this.value] || this.value.toUpperCase();
+});
+document.getElementById('reviewName').addEventListener('input', function() {
+  const lang = document.getElementById('reviewLang').value;
+  const ext = { javascript:'js', typescript:'ts', 'typescript-react':'tsx', python:'py', go:'go', rust:'rs', java:'java', csharp:'cs', php:'php', sql:'sql' };
+  document.getElementById('editorFilename').textContent = (this.value || 'untitled') + '.' + (ext[lang] || 'txt');
+});
+
+function clearCode() {
+  codeInput.value = '';
+  updateLineNums();
+}
+
+// ─── SAMPLE CODE ───
+const SAMPLES = {
+  js_bug: `// ⚠ This code has several bugs — can you spot them?
+function getUserData(userId) {
+  let data = null;
+  fetch('/api/users/' + userId)
+    .then(r => r.json())
+    .then(json => { data = json; });
+  return data; // always null — async bug
+}
+
+function processItems(items) {
+  var results = [];
+  for (var i = 0; i <= items.length; i++) { // off-by-one
+    results.push(items[i].value * 2);       // crash on last iter
+  }
+  return results;
+}
+
+function memoize(fn) {
+  const cache = {};
+  return function(x) {
+    if (cache[x]) return cache[x]; // fails for falsy values (0, '')
+    cache[x] = fn(x);
+    return cache[x];
+  };
+}`,
+  py_perf: `# Python performance issues
+def find_duplicates(lst):
+    duplicates = []
+    for i in range(len(lst)):
+        for j in range(len(lst)):       # O(n²) — use set instead
+            if i != j and lst[i] == lst[j]:
+                if lst[i] not in duplicates:
+                    duplicates.append(lst[i])
+    return duplicates
+
+def load_config():
+    import json
+    f = open('config.json', 'r')        # file handle never closed
+    config = json.load(f)
+    return config
+
+def concat_strings(items):
+    result = ""
+    for item in items:
+        result = result + str(item)     # O(n²) string concat
+    return result`,
+  sql_inj: `// SQL Injection & N+1 Problems
+function loginUser(username, password) {
+  // CRITICAL: SQL injection vulnerability
+  const query = "SELECT * FROM users WHERE username = '"
+    + username + "' AND password = '" + password + "'";
+  return db.execute(query);
+}
+
+// Inefficient: no index, forces full table scan
+async function getYearOrders() {
+  return db.query(\`
+    SELECT * FROM orders
+    WHERE YEAR(created_at) = 2024
+    ORDER BY created_at DESC
+  \`);
+}
+
+// N+1 query problem
+async function getOrdersWithUsers(orderIds) {
+  const orders = await db.query("SELECT * FROM orders WHERE id IN (?)", [orderIds]);
+  for (const order of orders) {
+    order.user = await db.query("SELECT * FROM users WHERE id = ?", [order.user_id]);
+  }
+  return orders;
+}`,
+  ts_mem: `// TypeScript Memory Leaks
+import { EventEmitter } from 'events';
+
+class StreamProcessor extends EventEmitter {
+  process(stream: NodeJS.ReadableStream) {
+    stream.on('data', (chunk) => {
+      this.emit('processed', chunk);
+    });
+    stream.on('error', (err) => {
+      console.error(err); // stream not destroyed — memory leak
+    });
+    // Missing: stream cleanup on error/end
+  }
+}
+
+class UserCache {
+  private cache: Map<string, any> = new Map();
+
+  async getUser(id: string) {
+    if (!this.cache.has(id)) {
+      this.cache.set(id, await fetchUser(id)); // unbounded cache growth
+    }
+    return this.cache.get(id);
+  }
+  // Missing: cache eviction strategy
+}`
+};
+
+function loadSampleCode(key) {
+  const s = SAMPLES[key];
+  if (!s) return;
+  codeInput.value = s;
+  updateLineNums();
+  const langMap = { js_bug:'javascript', py_perf:'python', sql_inj:'sql', ts_mem:'typescript' };
+  document.getElementById('reviewLang').value = langMap[key] || 'javascript';
+  document.getElementById('reviewLang').dispatchEvent(new Event('change'));
+  const nameMap = { js_bug:'async-utils', py_perf:'data-processor', sql_inj:'auth-service', ts_mem:'stream-handler' };
+  document.getElementById('reviewName').value = nameMap[key] || 'sample';
+  document.getElementById('reviewName').dispatchEvent(new Event('input'));
+  showToast('Sample code loaded', 'success');
+}
+function loadSample() { loadSampleCode('js_bug'); }
+
+// ─── LOADER ───
+const LOADER_STEPS = [
+  'Parsing code structure…',
+  'Running security analysis…',
+  'Detecting bugs and anti-patterns…',
+  'Profiling performance…',
+  'Generating fix suggestions…',
+];
+async function showLoader() {
+  const overlay = document.getElementById('loader');
+  const stepsEl = document.getElementById('loaderSteps');
+  const progress = document.getElementById('loaderProgress');
+  overlay.classList.add('show');
+  stepsEl.innerHTML = '';
+  progress.style.width = '0%';
+  for (let i = 0; i < LOADER_STEPS.length; i++) {
+    const el = document.createElement('div');
+    el.className = 'loader-step';
+    el.innerHTML = `<div class="lstep-dot"></div>${LOADER_STEPS[i]}`;
+    stepsEl.appendChild(el);
+    await sleep(200);
+    el.classList.add('show');
+    await sleep(500);
+    progress.style.width = ((i + 1) / LOADER_STEPS.length * 80) + '%';
+  }
+}
+function hideLoader() {
+  document.getElementById('loaderProgress').style.width = '100%';
+  setTimeout(() => {
+    document.getElementById('loader').classList.remove('show');
+  }, 300);
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ─── RUN REVIEW ───
+async function runReview() {
+  const code = codeInput.value.trim();
+  if (!code) { showToast('Please paste some code first', 'error'); return; }
+  const name = document.getElementById('reviewName').value || 'Untitled Review';
+  const lang = document.getElementById('reviewLang').value;
+  const context = document.getElementById('reviewContext').value;
+
+  await showLoader();
+
+  const SYSTEM = `You are CodeLens, an expert AI code reviewer. Analyze code thoroughly and return ONLY valid JSON — no prose, no markdown fences.
+
+Schema:
+{
+  "summary": "2-3 sentence overall assessment",
+  "health": <integer 0-100>,
+  "health_label": "Excellent|Good|Fair|Poor",
+  "scores": { "bugs": <int>, "warnings": <int>, "improvements": <int>, "positives": <int> },
+  "issues": [
+    {
+      "type": "bug|warning|improvement|positive",
+      "severity": "critical|high|medium|low|info",
+      "title": "short title",
+      "line": "line ref or null",
+      "description": "clear explanation (max 2 sentences)",
+      "fix": "code fix snippet or null"
+    }
+  ]
+}
+Rules: bugs=crashes/security, warnings=perf/deprecated, improvements=style/readability, positive=good patterns. Return ONLY valid JSON.`;
+
+  const userMsg = `Language: ${lang}\n${context ? 'Context: ' + context + '\n' : ''}\n\`\`\`${lang}\n${code}\n\`\`\``;
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYSTEM,
+        lang,
+        context,
+        code,
+        userMsg
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = (data.content || []).map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    hideLoader();
+    renderAnalysis(parsed, name, lang);
+    // Add to history
+    addToHistory({ name, lang, status: parsed.scores.bugs > 0 ? (parsed.scores.bugs > 2 ? 'critical' : 'warning') : 'completed', date: new Date(), scores: parsed.scores });
+    showToast('Analysis complete!', 'success');
+  } catch (err) {
+    hideLoader();
+    renderAnalysisError(err.message);
+    showToast('Analysis failed: ' + err.message, 'error');
+  }
+}
+
+// ─── RENDER ANALYSIS ───
+function renderAnalysis(data, name, lang) {
+  const { summary, health, health_label, scores, issues } = data;
+  document.getElementById('analysisTitle').textContent = name + ' — Analysis';
+  document.getElementById('analysisDesc').textContent = `${lang} · ${issues.length} issues found across all categories.`;
+  document.getElementById('analysisNotif').style.display = '';
+
+  const healthColor = health >= 80 ? 'var(--success)' : health >= 60 ? 'var(--orange)' : 'var(--danger)';
+  const groups = { bug: [], warning: [], improvement: [], positive: [] };
+  issues.forEach(i => (groups[i.type] || groups.improvement).push(i));
+
+  let html = `
+    <div class="result-banner">
+      <div class="result-score">
+        <div class="result-score-val" style="color:${healthColor}">${health}</div>
+        <div class="result-score-lbl">Health Score</div>
+        <div style="margin-top:6px"><span class="badge ${health >= 80 ? 'badge-success' : health >= 60 ? 'badge-warning' : 'badge-danger'}">${health_label}</span></div>
+      </div>
+      <div class="result-divider"></div>
+      <div class="result-info">
+        <div class="result-title">${escHtml(name)}</div>
+        <div class="result-meta">${escHtml(summary)}</div>
+        <div style="display:flex;gap:16px;margin-top:12px">
+          <span style="font-size:12px"><span style="color:var(--danger);font-weight:700">${scores.bugs}</span> <span style="color:var(--muted)">bugs</span></span>
+          <span style="font-size:12px"><span style="color:var(--orange);font-weight:700">${scores.warnings}</span> <span style="color:var(--muted)">warnings</span></span>
+          <span style="font-size:12px"><span style="color:var(--accent);font-weight:700">${scores.improvements}</span> <span style="color:var(--muted)">improvements</span></span>
+          <span style="font-size:12px"><span style="color:var(--success);font-weight:700">${scores.positives}</span> <span style="color:var(--muted)">positives</span></span>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Exported to clipboard','success')">⬇ Export</button>
+        <button class="btn btn-sm btn-secondary" onclick="navigate('review')">New Review</button>
+      </div>
+    </div>`;
+
+  const secs = [
+    { key:'bug',         label:'🐛 Bugs Detected',          cls:'bug',    show: groups.bug.length > 0 },
+    { key:'warning',     label:'⚡ Performance Warnings',    cls:'warn',   show: groups.warning.length > 0 },
+    { key:'improvement', label:'✦ Suggested Improvements',  cls:'improv', show: groups.improvement.length > 0 },
+    { key:'positive',    label:'✓ Good Patterns',           cls:'good',   show: groups.positive.length > 0 },
+  ];
+
+  secs.forEach(sec => {
+    if (!sec.show) return;
+    html += `<div class="issue-section"><div class="issue-section-title">${sec.label} <span class="badge ${sec.cls === 'bug' ? 'badge-danger' : sec.cls === 'warn' ? 'badge-warning' : sec.cls === 'good' ? 'badge-success' : 'badge-info'}">${groups[sec.key].length}</span></div>`;
+    groups[sec.key].forEach(issue => {
+      html += `<div class="issue-card ${sec.cls}">
+        <div class="issue-card-head">
+          <div>
+            <div class="issue-title">${escHtml(issue.title)}</div>
+            ${issue.line ? `<div class="issue-file">Line ${escHtml(issue.line)}</div>` : ''}
+          </div>
+          <span class="badge ${issue.severity === 'critical' ? 'badge-danger' : issue.severity === 'high' ? 'badge-danger' : issue.severity === 'medium' ? 'badge-warning' : 'badge-info'}">${issue.severity || ''}</span>
+        </div>
+        <div class="issue-desc">${escHtml(issue.description)}</div>
+        ${issue.fix ? `<div class="diff-block"><div class="diff-hdr">Suggested Fix</div><div style="color:var(--success2);font-family:var(--mono);font-size:11.5px;white-space:pre-wrap">${escHtml(issue.fix)}</div></div>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('analysisContent').innerHTML = html;
+  navigate('analysis');
+}
+
+function renderAnalysisError(msg) {
+  document.getElementById('analysisContent').innerHTML = `
+    <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:20px;color:var(--danger2)">
+      ⚠ Analysis Error: ${escHtml(msg)}
+    </div>`;
+  navigate('analysis');
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── HISTORY ───
+const historyData = [
+  { name:'Main Engine Optimization', lang:'TypeScript', commit:'#a12f9b', date:'Oct 24, 2023', status:'completed', chips:[{l:'2 Critical Bugs',t:'bug'},{l:'5 Improvements',t:'imp'}], avatars:2 },
+  { name:'Data Pipeline Refactor', lang:'Python', commit:'#77d2c1', date:'Oct 23, 2023', status:'progress', progress:'Analyzing performance metrics…', avatars:0 },
+  { name:'Security Patch: Auth Provider', lang:'Go', commit:'#b6b102', date:'Oct 20, 2023', status:'completed', chips:[{l:'✓ Security Validated',t:'sec'},{l:'Documentation Updated',t:'doc'}], avatars:1 },
+  { name:'UI Component Library', lang:'TypeScript', commit:'#f2a991', date:'Oct 18, 2023', status:'completed', chips:[{l:'✓ Clean Architecture',t:'arch'}], avatars:1 },
+];
+
+function addToHistory(entry) {
+  historyData.unshift({
+    name: entry.name,
+    lang: entry.lang,
+    commit: '#' + Math.random().toString(16).substr(2,6),
+    date: 'Just now',
+    status: entry.status === 'critical' ? 'completed' : 'completed',
+    chips: [
+      ...(entry.scores.bugs > 0 ? [{l: entry.scores.bugs + ' Bugs', t:'bug'}] : []),
+      ...(entry.scores.improvements > 0 ? [{l: entry.scores.improvements + ' Improvements', t:'imp'}] : []),
+      ...(entry.scores.bugs === 0 ? [{l:'✓ No Critical Issues', t:'sec'}] : []),
+    ],
+    avatars: 1
+  });
+  renderHistory();
+}
+
+let historyFilter = 'all';
+function setHistoryFilter(el, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  historyFilter = filter;
+  renderHistory();
+}
+function filterHistory() { renderHistory(); }
+
+function renderHistory() {
+  const search = (document.getElementById('historySearch')?.value || '').toLowerCase();
+  const list = document.getElementById('historyList');
+  if (!list) return;
+  const filtered = historyData.filter(h => {
+    const matchSearch = !search || h.name.toLowerCase().includes(search) || h.lang.toLowerCase().includes(search) || h.commit.toLowerCase().includes(search);
+    const matchFilter = historyFilter === 'all' || historyFilter === h.status ||
+      (historyFilter === 'critical' && h.chips?.some(c => c.t === 'bug'));
+    return matchSearch && matchFilter;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">⌛</div><div class="empty-title">No reviews found</div><div class="empty-desc">Try a different search or filter.</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(h => `
+    <div class="hist-card ${h.status === 'progress' ? 'prog' : 'done'}" onclick="showToast('Opening ${escHtml(h.name)}','info')">
+      <div class="hist-head">
+        <div class="hist-title">${escHtml(h.name)}</div>
+        <span class="badge ${h.status === 'progress' ? 'badge-orange' : 'badge-info'}">${h.status === 'progress' ? 'In Progress' : 'Completed'}</span>
+      </div>
+      <div class="hist-meta">
+        <span>📅 ${h.date}</span>
+        <span>⟨/⟩ ${h.lang}</span>
+        <span style="font-family:var(--mono);font-size:10px">${h.commit}</span>
+      </div>
+      ${h.progress ? `<div style="font-size:12px;color:var(--muted);font-style:italic;margin-bottom:10px">${h.progress}</div>` : ''}
+      ${h.chips ? `<div class="hist-chips">${h.chips.map(c => `<span class="hchip hchip-${c.t}">${escHtml(c.l)}</span>`).join('')}</div>` : ''}
+      <div class="hist-footer">
+        <div class="hist-avatars">
+          ${h.avatars >= 1 ? '<div class="hist-ava hist-ava-1">A</div>' : ''}
+          ${h.avatars >= 2 ? '<div class="hist-ava hist-ava-2">B</div>' : ''}
+        </div>
+        <button class="btn btn-sm ${h.status === 'progress' ? 'btn-secondary' : 'btn-secondary'}" onclick="event.stopPropagation();navigate('analysis');showToast('Loading diff view','info')">${h.status === 'progress' ? 'Resume' : 'View Diff'}</button>
+      </div>
+    </div>`).join('');
+}
+
+// ─── TOAST ───
+function showToast(msg, type = 'info') {
+  const wrap = document.getElementById('toastWrap');
+  const icons = { success:'✓', error:'✕', info:'ℹ' };
+  const colors = { success:'var(--success)', error:'var(--danger)', info:'var(--accent)' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span style="color:${colors[type]};font-size:16px;flex-shrink:0">${icons[type]}</span><span>${escHtml(msg)}</span>`;
+  wrap.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ─── INIT ───
+buildVelocityChart();
+renderHistory();
+updateLineNums();
+
+// Animate donut on load
+setTimeout(() => {
+  const arc = document.getElementById('donutArc');
+  if (arc) arc.style.transition = 'stroke-dasharray 1.2s ease';
+}, 100);
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "digital-architect-local",
+  "version": "1.0.0",
+  "description": "Local AI code review dashboard with Node.js backend and static frontend",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "ai",
+    "code-review",
+    "dashboard",
+    "anthropic",
+    "express"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}
