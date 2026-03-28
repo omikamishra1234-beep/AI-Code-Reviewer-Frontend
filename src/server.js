@@ -1,85 +1,83 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-dotenv.config();
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const publicDir = path.join(__dirname, '..', 'public');
+const publicDir = path.join(__dirname, "..", "public");
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
-const MODEL = process.env.MODEL || 'claude-sonnet-4-20250514';
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: "1mb" }));
 app.use(express.static(publicDir));
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, model: MODEL, hasApiKey: Boolean(API_KEY) });
-});
+function buildDummyAnalysis(code, language = "javascript") {
+  const issues = [];
+  let health = 92;
 
-app.post('/api/analyze', async (req, res) => {
-  try {
-    const { system, lang, context, code, userMsg } = req.body ?? {};
-
-    if (!API_KEY) {
-      return res.status(500).json({ error: 'Missing ANTHROPIC_API_KEY in .env file.' });
-    }
-
-    if (!code || typeof code !== 'string' || !code.trim()) {
-      return res.status(400).json({ error: 'Code is required.' });
-    }
-
-    const requestBody = {
-      model: MODEL,
-      max_tokens: 1200,
-      system:
-        typeof system === 'string' && system.trim()
-          ? system
-          : 'You are an expert AI code reviewer. Return only valid JSON.',
-      messages: [
-        {
-          role: 'user',
-          content:
-            typeof userMsg === 'string' && userMsg.trim()
-              ? userMsg
-              : `Language: ${lang || 'unknown'}\n${context ? `Context: ${context}\n` : ''}\n\n${code}`
-        }
-      ]
-    };
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(requestBody)
+  if (code.includes("var ")) {
+    issues.push({
+      title: "Use let/const instead of var",
+      description: "var is function-scoped and can create confusing behavior. Prefer let or const.",
+      fix: code.replace(/\bvar\b/g, "let")
     });
+    health -= 10;
+  }
 
-    const data = await response.json();
+  if (/<=\s*\w+\.length/.test(code)) {
+    issues.push({
+      title: "Possible off-by-one loop",
+      description: "Using <= with .length can read one item past the end of an array.",
+      fix: "Change <= items.length to < items.length"
+    });
+    health -= 12;
+  }
 
-    if (!response.ok) {
-      const errorMessage = data?.error?.message || 'Anthropic request failed.';
-      return res.status(response.status).json({ error: errorMessage, raw: data });
+  if (language === "sql" && /select\s+\*+/i.test(code)) {
+    issues.push({
+      title: "Avoid SELECT *",
+      description: "Selecting all columns can hurt performance and make queries harder to maintain.",
+      fix: "Select only the columns you need."
+    });
+    health -= 8;
+  }
+
+  if (!issues.length) {
+    return {
+      summary: "No obvious issues were detected in this local demo analysis.",
+      health,
+      issues: []
+    };
+  }
+
+  return {
+    summary: `Found ${issues.length} potential issue${issues.length === 1 ? "" : "s"} in this code.`,
+    health: Math.max(40, health),
+    issues
+  };
+}
+
+app.post("/analyze", (req, res) => {
+  try {
+    const { code, language } = req.body || {};
+    if (!code || typeof code !== "string") {
+      return res.status(400).json({ error: "Code is required." });
     }
 
-    return res.json(data);
+    const result = buildDummyAnalysis(code, language);
+    return res.json(result);
   } catch (error) {
-    return res.status(500).json({ error: error.message || 'Unexpected server error.' });
+    return res.status(500).json({ error: error.message || "Server error" });
   }
 });
 
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 app.listen(PORT, () => {
-  console.log(`Digital Architect running at http://localhost:${PORT}`);
+  console.log(`Digital Architect running on http://localhost:${PORT}`);
 });
