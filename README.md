@@ -40,10 +40,6 @@ Make sure you have installed:
 
 Node.js (v16+ recommended)
 npm (comes with Node.js)
-
-Optional (for full functionality):
-
-Python backend running on http://localhost:5000
 Getting Started
 1. Clone or download the project
   git clone <your-repo-url>
@@ -54,3 +50,4 @@ Getting Started
   npm start
 4. Open the app
   http://localhost:3000
+
