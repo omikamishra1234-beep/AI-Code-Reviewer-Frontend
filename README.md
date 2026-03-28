@@ -1,6 +1,6 @@
 # CodeCritic --- AI Code Review Frontend
 
-Digital Architect is a lightweight frontend application for analyzing
+DCodeCritic is a lightweight frontend application for analyzing
 code using AI.\
 It allows users to paste code, send it to a backend service, and receive
 structured feedback including a score, improvements, and
