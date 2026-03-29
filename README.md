@@ -12,11 +12,11 @@ recommendations.
 
 ## Features
 
--   AI-powered code review (via backend integration)\
--   Code quality score (0--100)\
--   Highlights what to keep\
--   Identifies what to remove\
--   Suggests improvements with fixes\
+-   AI-powered code review (via backend integration)
+-   Code quality score (0--100)
+-   Highlights what to keep
+-   Identifies what to remove
+-   Suggests improvements with fixes
 -   Simple, clean, distraction-free UI
 
 ------------------------------------------------------------------------
