@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Digital Architect</title>
+  <title>CodeCritic</title>
   <style>
     :root{
       --bg:#0d1117; --panel:#161d28; --panel2:#1d2635; --border:#2b3647;
@@ -40,23 +40,118 @@
     .issue{background:var(--panel2);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;padding:12px}
     .issue h3{margin:0 0 6px;font-size:16px}
     .issue p{margin:0;color:var(--text)}
+    .issue.keep{border-left-color:var(--ok)}
+    .issue.remove{border-left-color:#ef4444}
+    .collapsible{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+    .collapsible::-webkit-details-marker{display:none}
+    .collapsible h3{margin:0;display:inline-block;color:var(--accent)}
+    .collapsible::after{content:'▼';font-size:12px;color:var(--muted);transition:transform 0.2s;margin-left:auto}
+    details[open] .collapsible::after{transform:rotate(180deg)}
+    details{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:16px}
+    details:last-child{border-bottom:0}
+    h3{margin:24px 0 10px;font-size:18px;color:var(--accent)}
+    /* Gauge Styles */
+    .gauge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      position: relative;
+    }
+    .gauge {
+      width: 140px;
+      height: 140px;
+      transform: rotate(-90deg);
+    }
+    .gauge-bg {
+      fill: none;
+      stroke: var(--panel2);
+      stroke-width: 10;
+    }
+    .gauge-progress {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease;
+    }
+    .gauge-text {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .gauge-score {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text);
+    }
+    .gauge-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .gauge-subtext {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .gauge-date {
+      font-size: 9px;
+      color: var(--muted);
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+    ul.muted{padding-left:20px;margin:0 0 20px}
+    ul.muted li{margin-bottom:6px}
     .muted{color:var(--muted)}
     pre{white-space:pre-wrap;background:#0b1220;border:1px solid var(--border);padding:12px;border-radius:10px;overflow:auto}
+    /* Loading Animation */
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 0;
+      gap: 20px;
+    }
+    .loading-icon {
+      font-size: 80px;
+      animation: pulse 1.5s infinite ease-in-out;
+      filter: drop-shadow(0 0 15px var(--accent));
+      user-select: none;
+    }
+    .loading-text {
+      font-weight: 400;
+      font-size: 18px;
+      letter-spacing: 1px;
+      color: var(--accent);
+    }
     @media (max-width: 720px){ .row{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>Digital Architect</h1>
+    <h1>CodeCritic</h1>
     <p>Paste your code, run a review, and see the analysis.</p>
 
     <div class="card">
-      <div class="row">
-        <input id="reviewName" placeholder="Review name (optional)" />
+      <div class="row" style="grid-template-columns: 1fr;">
         <select id="language">
+          <option value="python" selected>Python</option>
           <option value="javascript">JavaScript</option>
           <option value="typescript">TypeScript</option>
-          <option value="python">Python</option>
           <option value="sql">SQL</option>
           <option value="java">Java</option>
           <option value="go">Go</option>
@@ -84,13 +179,38 @@
     const reportEl = document.getElementById('report');
     const runBtn = document.getElementById('runBtn');
 
-    const sample = `function sum(items) {
-  var total = 0;
-  for (var i = 0; i <= items.length; i++) {
-    total += items[i];
-  }
-  return total;
-}`;
+    const sample = `import os
+import hashlib
+
+# 1. Security Risk: Hardcoded sensitive data
+API_KEY = "sk-1234567890abcdef1234567890abcdef"
+
+def process_user_data(user_id, password):
+    # 2. Security Risk: Using an insecure hashing algorithm (MD5)
+    # 3. Logic: No salt used for password hashing
+    hashed_pw = hashlib.md5(password.encode()).hexdigest()
+    
+    # 4. Performance: Inefficient list lookup in a loop (O(n^2))
+    # 5. Clean Code: Generic variable names (temp_list)
+    temp_list = []
+    for i in range(1000):
+        if i not in temp_list:
+            temp_list.append(i)
+            
+    # 6. Security Risk: SQL Injection vulnerability
+    # 7. Practice: Using string formatting for queries instead of parameterized inputs
+    query = "SELECT * FROM users WHERE id = '" + user_id + "' AND pw = '" + hashed_pw + "'"
+    print(f"Executing: {query}")
+    
+    # 8. Error Handling: Bare 'except' block (swallowing errors)
+    try:
+        # 9. Security: Shell injection risk via unvalidated user_id
+        os.system("rm -rf /tmp/logs/" + user_id)
+    except:
+        pass
+
+# 10. Design: Global scope execution without if __name__ == '__main__':
+process_user_data("admin'; DROP TABLE users; --", "password123")`;
 
     document.getElementById('sampleBtn').addEventListener('click', () => {
       codeEl.value = sample;
@@ -105,35 +225,78 @@
     }
 
     function renderReport(data) {
-      const healthClass = data.health >= 85 ? 'good' : data.health >= 65 ? 'fair' : 'bad';
-      const healthLabel = data.health >= 85 ? 'Good' : data.health >= 65 ? 'Fair' : 'Needs work';
+      const score = data.score ?? 0;
+      const scoreHex = score >= 80 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
+      const radius = 60;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (score / 100) * circumference;
+      const now = new Date();
+      const dateStr = `as on ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 
-      const issuesHtml = (data.issues || []).length
-        ? `<div class="issues">${
-            data.issues.map(issue => `
-              <div class="issue">
-                <h3>${esc(issue.title || 'Issue')}</h3>
-                <p>${esc(issue.description || '')}</p>
-                ${issue.fix ? `<pre>${esc(issue.fix)}</pre>` : ''}
-              </div>
-            `).join('')
-          }</div>`
-        : `<p class="muted">No issues found.</p>`;
+      const parseItem = (item) => {
+        if (!item) return { title: 'Unknown Item' };
+        if (typeof item === 'object') return item;
+        if (typeof item === 'string' && item.includes(' & ')) {
+          const [title, ...rest] = item.split(' & ');
+          return { title, description: rest.join(' & ') };
+        }
+        return { title: String(item) };
+      };
+
+      const renderSection = (title, items, icon, colorClass = '', defaultOpen = true) => {
+        if (!items || items.length === 0) return '';
+        return `
+          <details ${defaultOpen ? 'open' : ''}>
+            <summary class="collapsible">
+              <h3>${icon} ${title}</h3>
+            </summary>
+            <div class="issues" style="margin-top:12px">
+              ${items.map(item => {
+                const { title: itemTitle, description, fix } = parseItem(item);
+                return `
+                  <div class="issue ${colorClass}">
+                    <h3 style="color:inherit; font-size:16px">${esc(itemTitle)}</h3>
+                    <p>${esc(description || '')}</p>
+                    ${fix ? `<pre style="margin-top:10px">${esc(fix)}</pre>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </details>
+        `;
+      };
+
+      const hasAny = (data.improve?.length || 0) > 0 || (data.remove?.length || 0) > 0 || (data.keep?.length || 0) > 0;
+
+      statusEl.textContent = '';
 
       reportEl.innerHTML = `
-        <div style="margin-bottom:12px">
-          <span class="badge ${healthClass}">Health ${esc(data.health)}</span>
-          <span class="badge ${healthClass}">${healthLabel}</span>
+        <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:24px; border-bottom:1px solid var(--border); padding-bottom:24px">
+          <div class="gauge-container">
+            <svg class="gauge" viewBox="0 0 140 140">
+              <circle class="gauge-bg" cx="70" cy="70" r="${radius}"></circle>
+              <circle class="gauge-progress" cx="70" cy="70" r="${radius}" 
+                style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset}; stroke: ${scoreHex};">
+              </circle>
+            </svg>
+            <div class="gauge-text">
+              <span class="gauge-label">Score</span>
+              <span class="gauge-score">${esc(score)}</span>
+            </div>
+          </div>
         </div>
-        <div class="summary">${esc(data.summary || 'Analysis complete.')}</div>
-        ${issuesHtml}
+        ${!hasAny ? '<div class="summary">No issues found.</div>' : ''}
+        <div style="margin-top:10px">
+          ${renderSection('Improvements', data.improve, '🚀')}
+          ${renderSection('Keep', data.keep, '✅', 'keep')}
+          ${renderSection('Remove', data.remove, '❌', 'remove')}
+        </div>
       `;
     }
 
     async function analyze() {
       const code = codeEl.value.trim();
       const language = document.getElementById('language').value;
-      const reviewName = document.getElementById('reviewName').value.trim();
 
       if (!code) {
         alert('Paste some code first.');
@@ -143,20 +306,26 @@
       runBtn.disabled = true;
       runBtn.textContent = 'Running...';
       resultEl.classList.remove('hidden');
-      statusEl.textContent = 'Analyzing code...';
-      reportEl.innerHTML = '';
+      
+      // animated loading state
+      statusEl.textContent = '';
+      reportEl.innerHTML = `
+        <div class="loading-container">
+          <div class="loading-icon">🤖</div>
+          <div class="loading-text">Critiquing your code...</div>
+        </div>
+      `;
 
       try {
         const res = await fetch('/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, language, reviewName })
+          body: JSON.stringify({ code, language })
         });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
-        statusEl.textContent = 'Analysis complete.';
         renderReport(data);
       } catch (err) {
         statusEl.textContent = 'Analysis failed.';

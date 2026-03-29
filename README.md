@@ -1,6 +1,6 @@
 # CodeCritic --- AI Code Review Frontend
 
-DCodeCritic is a lightweight frontend application for analyzing
+CodeCritic is a lightweight frontend application for analyzing
 code using AI.\
 It allows users to paste code, send it to a backend service, and receive
 structured feedback including a score, improvements, and
@@ -25,8 +25,8 @@ Frontend (HTML/CSS/JS) ↓ Node.js Server (API Proxy) ↓ Python Backend
 (LLM Processing) ↓ LLM (OpenAI / Anthropic / etc.)
 
 The frontend communicates only with the Node.js server.\
-The Node server forwards requests to the Python backend, which handles
-AI processing.
+The Node server acts as a proxy and forwards requests to the Python backend, which handles
+AI processing - needed during development for mitigating CORS errors.
 
 ------------------------------------------------------------------------
 
