@@ -1,4 +1,6 @@
-# CodeCritic --- AI Code Review Frontend
+# 🤖 CodeCritic
+
+PHD Project for Generative AI with Large Language Models (MSAI-630-M50)
 
 CodeCritic is a lightweight frontend application for analyzing
 code using AI.\
